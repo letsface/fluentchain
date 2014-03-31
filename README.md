@@ -2,6 +2,13 @@
 
 A helper for creating nicely chained Javascript interfaces with promises.
 
+## Features
+
+* use dot notation to express sequences of operations
+* use previous step value or explicit parameters
+* eventual store/retrieve
+* return Q promises, with or without data
+
 ## Usage
 
 install:

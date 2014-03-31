@@ -11,7 +11,7 @@ function FluentError (msg) {
 function Fluent($log) {
   var self = this;
 
-  if(!$log.log) {
+  if(!$log || !$log.log) {
     $log = console;
   }
 
@@ -74,7 +74,7 @@ function Fluent($log) {
 
   self.promiseData = function() {
     var p = self._promise.then(function(data) {
-      if(!data) {
+      if(data === undefined) {
         return Q.reject(new FluentError('No data passed from previous step'));
       }
       return data;
