@@ -4,7 +4,7 @@
   "description": "A helper for creating nicely chained Javascript interfaces with promises",
   "main": "fluent.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/jasmine-node/bin/jasmine-node spec"
   },
   "repository": {
     "type": "git",
@@ -22,5 +22,8 @@
   },
   "dependencies": {
     "q": "~1.0.1"
+  },
+  "devDependencies": {
+    "jasmine-node": "~1.14.3"
   }
 }

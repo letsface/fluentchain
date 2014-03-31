@@ -8,8 +8,12 @@ function FluentError (msg) {
   this.stack = (new Error()).stack;
 };
 
-function Fluent() {
+function Fluent($log) {
   var self = this;
+
+  if(!$log.log) {
+    $log = console;
+  }
 
   self.either = function(explicit, implicit, noException) {
     var selected = explicit;
@@ -18,7 +22,7 @@ function Fluent() {
         if(noException) {
           return null;
         } else {
-          throw new FluentError('No valid parameter alternatives');  
+          throw new FluentError('No valid parameter alternatives ' + explicit + ' OR ' + implicit);  
         }        
       }
       selected = implicit;
@@ -43,6 +47,19 @@ function Fluent() {
     });
     return self;
   }
+
+  self.retrieve = function(target, propertyName) {
+    self.chain(function() {
+      if(typeof target !== 'object') {
+        return Q.reject(new Error('target is not object'));
+      }
+      if(typeof propertyName !== 'string') {
+        return Q.reject(new Error('propertyName is not string'));
+      }
+      return Q(target[propertyName]);
+    });
+    return self;
+  }  
 
   self.promiseNoData = function() {
     var p = self._promise.then(function(valueToIgnore) {
@@ -74,7 +91,7 @@ function Fluent() {
             return Q()
               .then(cb)
               .fail(function(err) {
-                console.log('ignoring error ' + err.message);
+                $log.log('ignoring error ' + err.message);
               });
           })
       self._ignoreErrors = false;
@@ -108,16 +125,16 @@ function Fluent() {
   }
 
   self.log = function(explicit) {
-    self._promise= self._promise.then(function(implicit) {
+    self.chain(function(implicit) {
       var selected = self.either(explicit, implicit);
-      console.log(selected);
+      $log.log(selected);
       return implicit;
     });
     return self;
   }
 
   self.next = function(cb) {
-    self._promise= self._promise.then(cb);
+    self._promise = self._promise.then(cb);
     return self;
   }
 
