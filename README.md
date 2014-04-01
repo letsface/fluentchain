@@ -32,3 +32,7 @@ util.inherits(Example, fluent);
 ```
 
 See examples/example1.js for more.
+
+## Other published projects using fluentchain
+
+* https://github.com/letsface/pgspjs
