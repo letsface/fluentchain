@@ -11,14 +11,16 @@ function FluentError (msg) {
 function Fluent($log) {
   var self = this;
 
+  var internalStore = undefined;
+
   if(!$log || !$log.log) {
     $log = console;
   }
 
   self.either = function(explicit, implicit, noException) {
     var selected = explicit;
-    if(!selected && typeof selected !== 'object') {
-      if(!implicit && typeof implicit !== 'object') {
+    if(typeof selected === 'undefined') {
+      if(typeof implicit === 'undefined') {
         if(noException) {
           return null;
         } else {
@@ -34,25 +36,41 @@ function Fluent($log) {
     self._promise = Q();      
   }
 
-  self.store = function(target, propertyName) {
+  self.store = function(entityName, targetObject) {
     self.chain(function(previousStepData) {
-      if(typeof target !== 'object') {
-        return Q.reject(new Error('target is not object'));
+      if(typeof targetObject !== undefined && targetObject === null) {
+         return Q.reject(new Error('cannot store to explicit null parameter'));
       }
-      if(typeof propertyName !== 'string') {
-        return Q.reject(new Error('propertyName is not string'));
+      targetObject = self.either(targetObject, internalStore, true);
+      if(targetObject === null || typeof targetObject !== 'object') {
+        internalStore = {};  
+        targetObject = internalStore;
       }
-      target[propertyName] = previousStepData;
+      
+      if(typeof targetObject !== 'object') {
+        return Q.reject(new Error('targetObject is not object'));
+      }
+      if(typeof entityName !== 'string') {
+        return Q.reject(new Error('entityName is not string'));
+      }
+
+      targetObject[entityName] = previousStepData;
+
+      //passthrough to the next step
       return previousStepData;
     });
+
     return self;
   }
 
-  self.retrieve = function(target, propertyName) {
+  self.retrieve = function(propertyName, target) {
     self.chain(function() {
-      if(typeof target !== 'object') {
-        return Q.reject(new Error('target is not object'));
+      target = self.either(target, internalStore, true);
+
+      if(target === null || typeof target !== 'object') {
+        return Q.reject(new Error('no target object or internal store to retrieve from'));
       }
+
       if(typeof propertyName !== 'string') {
         return Q.reject(new Error('propertyName is not string'));
       }
@@ -153,6 +171,30 @@ function Fluent($log) {
         .then(done)
         .fail(done)
         .done();
+    return self;
+  }
+
+  self.set = function(storeName, propertyName, target) {
+    self.chain(function(previousStepData) {
+
+      target = self.either(target, previousStepData);
+
+      if(internalStore === null) {
+        throw new FluentError('No internal store');
+      }
+      if(!internalStore[storeName]) {
+       throw new FluentError('Invalid entity ' + storeName + ', available: ' + Object.keys(internalStore)); 
+      }
+      if(!internalStore[storeName][propertyName]) {
+       throw new FluentError('No such property ' + propertyName + ', available: ' + Object.keys(internalStore[storeName]));
+      }
+
+      target[propertyName] = internalStore[storeName][propertyName];
+      
+      return previousStepData;
+
+    });
+    
     return self;
   }
 

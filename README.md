@@ -14,7 +14,7 @@ A helper for creating nicely chained Javascript interfaces with promises.
 install:
 
 ```
-npm install fluentchain
+npm install git+ssh://git@github.com/letsface/fluentchain.git
 ```
 
 outline:

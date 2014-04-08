@@ -78,7 +78,6 @@ ignoring error fake
 
 function main($log) {
   var example = new Example(10, $log);
-  var store = {};
   return example
     .log('will add one')
     .add(1)  
@@ -86,10 +85,10 @@ function main($log) {
     .insert(10)
     .add() 
     .log() // outputs 12
-    .store(store, 'result')
+    .store('result')
     .ignoreNextError()
     .artificialError()
-    .retrieve(store, 'result')
+    .retrieve('result')
     .promiseData()
 
 }
