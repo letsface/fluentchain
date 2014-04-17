@@ -24,8 +24,12 @@ describe('ExampleStoreRetrieve', function() {
       .retrieve('var')
       .chain(function(previousStep) {
         expect(previousStep).toEqual(42);
-      })      
-      .promiseNoData()
+      })
+      .retrieveStore()
+      .promiseData()
+      .then(function(store) {
+        expect(JSON.stringify(store)).toEqual('{"var":42}');
+      })
       .then(done)
       .fail(done)
       .done()

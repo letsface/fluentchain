@@ -63,6 +63,18 @@ function Fluent($log) {
     return self;
   }
 
+
+  self.retrieveStore = function() {
+    self.chain(function() {
+      if(internalStore === null || typeof internalStore !== 'object') {
+        return Q.reject(new Error('no internal store to retrieve from'));
+      }
+      return internalStore;
+      
+    });
+    return self;
+  }  
+
   self.retrieve = function(propertyName, target) {
     self.chain(function() {
       target = self.either(target, internalStore, true);
