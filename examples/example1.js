@@ -54,14 +54,14 @@ function Example(instanceParameter, $log) {
       // could also be a promise
       return v;
     });
-    return self;    
+    return self;
   }
 
   // promises allow skipping rest of the chain on error
   self.artificialError = function() {
     self.chain(function() {
       throw new Error('fake');
-    }) 
+    })
     return self;
   }
 };
@@ -80,17 +80,16 @@ function main($log) {
   var example = new Example(10, $log);
   return example
     .log('will add one')
-    .add(1)  
+    .add(1)
     .log('will add 10')
     .insert(10)
-    .add() 
+    .add()
     .log() // outputs 12
     .store('result')
     .ignoreNextError()
     .artificialError()
     .retrieve('result')
     .promiseData()
-
 }
 
 exports.main = main;
@@ -99,7 +98,7 @@ if(require.main === module) {
   main(console)
     .then(function(value) {
       console.log(value); // outputs 12
-    })  
+    })
     .fail(function(err) {
       console.log(err.message);
       console.log(err.stack);
